@@ -48,7 +48,7 @@ function count_exim_queue_files($path) {
 $mailqueue = (int) count_exim_queue_files('/var/spool/exim/input/');
 
 $loads = sys_getloadavg();
-$load5 = number_format($loads[1], 2, ',', ''); //get the 5min avg loads with 2 decimals
+$load5 = number_format($loads[1], 2, '.', ''); //get the 5min avg loads with 2 decimals
 
 //Print the results of the health check
 echo json_encode([
