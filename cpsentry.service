@@ -1,0 +1,14 @@
+[Unit]
+Description=cPsentry Monitoring Tool Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /etc/cPsentry/cPsentry.py
+Restart=always
+User=root
+WorkingDirectory=/etc/cPsentry
+StandardOutput=append:/var/log/cpsentry.log
+StandardError=append:/var/log/cpsentry.log
+
+[Install]
+WantedBy=multi-user.target

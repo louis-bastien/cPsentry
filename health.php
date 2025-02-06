@@ -50,10 +50,23 @@ $mailqueue = (int) count_exim_queue_files('/var/spool/exim/input/');
 $loads = sys_getloadavg();
 $load5 = number_format($loads[1], 2, '.', ''); //get the 5min avg loads with 2 decimals
 
+// Disk space check for "/" and "/tmp"
+$root_total = disk_total_space("/");
+$root_free = disk_free_space("/");
+$root_used = $root_total - $root_free;
+$root_usage = number_format(($root_used / $root_total) * 100, 2, '.', ''); // Percentage used
+
+$tmp_total = disk_total_space("/tmp");
+$tmp_free = disk_free_space("/tmp");
+$tmp_used = $tmp_total - $tmp_free;
+$tmp_usage = number_format(($tmp_used / $tmp_total) * 100, 2, '.', ''); // Percentage used
+
 //Print the results of the health check
 echo json_encode([
     "status"    => "OK",
     "mysql"     => $mysql,
     "mailqueue" => $mailqueue,
-    "load" => $load5
+    "load" => $load5,
+    "rootfs" => $root_usage,
+    "tmpfs" => $tmp_usage,
 ]);

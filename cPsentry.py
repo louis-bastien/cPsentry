@@ -3,12 +3,13 @@ import requests
 import os
 import sys
 import json
+import time
 from datetime import datetime, timedelta
 from apscheduler.schedulers.blocking import BlockingScheduler
 from dataclasses import dataclass
 
 # Configure logging (Only write to file, no console output)
-LOG_FILE = "monitoring.log"
+LOG_FILE = "cpsentry.log"
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -22,6 +23,8 @@ logging.basicConfig(
 class Config:
     mail_queue_threshold: int
     server_load_threshold: float
+    rootfs_threshold: float
+    tmpfs_threshold: float
     telegram_api: str
     telegram_chat_id: str
     monitoring_interval: int
@@ -35,10 +38,12 @@ class ConfigLoader:
         return Config(
             mail_queue_threshold=500,
             server_load_threshold=10,
+            rootfs_threshold=95,
+            tmpfs_threshold=70,
             telegram_api="7611133288:AAGnvY6HLAD-uvGKZEF5iMlrcRymkMdWhSU",
             telegram_chat_id="6995825953",
-            monitoring_interval=3,  # In minutes
-            http_timeout=20,
+            monitoring_interval=20,  # In minutes
+            http_timeout=20, #Alert sent if response time is 75% of timeout
             host_file="host.names"
         )
 
@@ -58,19 +63,28 @@ class Monitor:
 
     def check_health_endpoint(self, url):
         logging.info(f"Checking health endpoint: {url}")
+        
         try:
+            start_time = time.time()  # Start time before request
+
             response = requests.get(url, timeout=self.config.http_timeout)
+            response_time = round(time.time() - start_time, 3)  # Measure response duration (seconds)
             if response.status_code != 200:
-                logging.warning(f"Health check failed for {url}: HTTP {response.status_code}")
-                return {"error": f"Health check failed for {url}: HTTP {response.status_code}"}
+                logging.warning(f"Health check failed for {url}: HTTP {response.status_code} (Response Time: {response_time}s)")
+                return {
+                    "alerts": f"Health check failed for {url}: HTTP {response.status_code}",
+                    "response_time": response_time
+                }
 
             data = response.json()
 
-            # Ensure required keys exist
+            # Extract raw data
             raw_data = {
                 "mysql_status": data.get("mysql", "UNKNOWN"),
                 "mail_queue": int(data.get("mailqueue", -1)) if str(data.get("mailqueue", -1)).isdigit() else -1,
-                "load_avg": float(data.get("load", -1)) if str(data.get("load", -1)).replace('.', '', 1).isdigit() else -1
+                "load_avg": float(data.get("load", -1)) if str(data.get("load", -1)).replace('.', '', 1).isdigit() else -1,
+                "root_fs": float(data.get("rootfs", -1)) if str(data.get("rootfs", -1)).replace('.', '', 1).isdigit() else -1,
+                "tmp_fs": float(data.get("tmpfs", -1)) if str(data.get("tmpfs", -1)).replace('.', '', 1).isdigit() else -1,
             }
 
             logging.info(f"Raw data from {url}: {json.dumps(raw_data, indent=2)}")
@@ -83,6 +97,10 @@ class Monitor:
                 alert_message.append(f"{url}: Missing 'mailqueue' count in response")
             if raw_data["load_avg"] == -1:
                 alert_message.append(f"{url}: Missing 'load' average in response")
+            if raw_data["root_fs"] == -1:
+                alert_message.append(f"{url}: Missing 'rootfs' average in response")
+            if raw_data["tmp_fs"] == -1:
+                alert_message.append(f"{url}: Missing 'tmpfs' average in response")
 
             if "FAIL" in raw_data["mysql_status"]:
                 alert_message.append(f"{url}: MySQL issue detected: {raw_data['mysql_status']}")
@@ -90,15 +108,26 @@ class Monitor:
                 alert_message.append(f"{url}: Mail queue too large: {raw_data['mail_queue']}")
             if raw_data["load_avg"] > self.config.server_load_threshold:
                 alert_message.append(f"{url}: Load average too high: {raw_data['load_avg']}")
+            if raw_data["root_fs"] > self.config.rootfs_threshold:
+                alert_message.append(f"{url}: Root partition (/) full: {raw_data['root_fs']}%")
+            if raw_data["tmp_fs"] > self.config.tmpfs_threshold:
+                alert_message.append(f"{url}: Tmp partition (/tmp) full: {raw_data['tmp_fs']}%")
+            if response_time > self.config.http_timeout * 0.75:
+                alert_message.append(f"{url}: Slow response time detected: {raw_data['response_time']}s")
 
             return {
                 "alerts": " | ".join(alert_message) if alert_message else None,
-                "raw_data": raw_data
+                "raw_data": raw_data,
+                "response_time": response_time
             }
 
         except requests.exceptions.RequestException as e:
-            logging.error(f"Health check request failed for {url}: {e}")
-            return {"error": f"Health check request failed for {url}: {e}"}
+            response_time = round(time.time() - start_time, 3)  # Capture time even if request fails
+            logging.error(f"Health check request failed for {url} after {response_time}s: {e}")
+            return {
+                "alerts": f"Health check request failed for {url}: {e}",
+                "response_time": response_time
+            }
 
 # Main Application
 class MonitoringTool:
@@ -117,12 +146,14 @@ class MonitoringTool:
             # Extract alerts and raw data
             health_alert = result.get("alerts")
             raw_data = result.get("raw_data")
+            response_time = result.get("response_time")
 
             if self.test_mode:
-                message = f"🔍 Test Mode: Server Data from {host}\n{json.dumps(raw_data, indent=2)}"
+                message = f"Test Mode: Server Data from {host}\nResponse time ={response_time}s\n{json.dumps(raw_data, indent=2)}"
                 logging.info(f"Test Mode - Sending full data via Telegram for {host}")
                 self.send_telegram(message)
-            elif health_alert:
+
+            if health_alert:
                 logging.info(f"Sending health check alert via Telegram for {host}")
                 self.send_telegram(health_alert)
 
