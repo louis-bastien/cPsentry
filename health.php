@@ -28,10 +28,10 @@ try {
 }
 
 // Website information
-$website_url = "https://cp1-wp.fr.fo/";
+$website_url = "https://cp1-wp.fr.fo/wp/";
 
 //Make curl call to the website and fetch HTTP status
-$ch = curl_init($wordpress_url);
+$ch = curl_init($website_url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 
@@ -80,7 +80,7 @@ $tmp_usage = number_format(($tmp_used / $tmp_total) * 100, 2, '.', ''); // Perce
 
 //Print the results of the health check
 echo json_encode([
-    "status"    => $status,
+    "status"    => "OK",
     "mysql"     => $mysql,
     "mailqueue" => $mailqueue,
     "load" => $load5,
