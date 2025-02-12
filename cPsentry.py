@@ -81,10 +81,11 @@ class Monitor:
             # Extract raw data
             raw_data = {
                 "mysql_status": data.get("mysql", "UNKNOWN"),
+                "website": (data.get("website", "UNKNOWN")),
                 "mail_queue": int(data.get("mailqueue", -1)) if str(data.get("mailqueue", -1)).isdigit() else -1,
                 "load_avg": float(data.get("load", -1)) if str(data.get("load", -1)).replace('.', '', 1).isdigit() else -1,
                 "root_fs": float(data.get("rootfs", -1)) if str(data.get("rootfs", -1)).replace('.', '', 1).isdigit() else -1,
-                "tmp_fs": float(data.get("tmpfs", -1)) if str(data.get("tmpfs", -1)).replace('.', '', 1).isdigit() else -1,
+                "tmp_fs": float(data.get("tmpfs", -1)) if str(data.get("tmpfs", -1)).replace('.', '', 1).isdigit() else -1
             }
 
             logging.info(f"Raw data from {url}: {json.dumps(raw_data, indent=2)}")
@@ -93,6 +94,8 @@ class Monitor:
 
             if raw_data["mysql_status"] == "UNKNOWN":
                 alert_message.append(f"{url}: Missing 'mysql' status in response")
+            if raw_data["website"] == "UNKNOWN":
+                alert_message.append(f"{url}: Missing 'website' status in response")
             if raw_data["mail_queue"] == -1:
                 alert_message.append(f"{url}: Missing 'mailqueue' count in response")
             if raw_data["load_avg"] == -1:
@@ -104,6 +107,8 @@ class Monitor:
 
             if "FAIL" in raw_data["mysql_status"]:
                 alert_message.append(f"{url}: MySQL issue detected: {raw_data['mysql_status']}")
+            if "FAIL" in raw_data["website"]:
+                alert_message.append(f"{url}: Website issue detected: {raw_data['website']}")
             if raw_data["mail_queue"] > self.config.mail_queue_threshold:
                 alert_message.append(f"{url}: Mail queue too large: {raw_data['mail_queue']}")
             if raw_data["load_avg"] > self.config.server_load_threshold:

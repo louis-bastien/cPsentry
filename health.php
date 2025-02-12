@@ -11,22 +11,39 @@ $db   = 'healthcheck_db';
 mysqli_report(MYSQLI_REPORT_STRICT);
 
 //Default status that will be updated if an error is found
-$status = "OK";
-$mysql = "OK";
 
 try {
     // Replace with your actual credentials
     $conn = mysqli_connect($host, $user, $pass, $db);
-
+    
     // Test a simple query
     if (!mysqli_query($conn, "SELECT 1")) {
         $mysql = "FAIL: Query error";
+    } else {
+        $mysql = "OK";
     }
-
     mysqli_close($conn);
-
 } catch (mysqli_sql_exception $e) {
     $mysql = "FAIL: " . $e->getMessage();
+}
+
+// Website information
+$website_url = "https://cp1-wp.fr.fo/";
+
+//Make curl call to the website and fetch HTTP status
+$ch = curl_init($wordpress_url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+
+$response = curl_exec($ch);
+$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+if ($http_code !== 200) {
+    $website_status = "FAIL: HTTP $http_code";
+}
+else {
+    $website_status = "OK";
 }
 
 //Function to iterate over all files in the mail queue and count them
@@ -63,10 +80,11 @@ $tmp_usage = number_format(($tmp_used / $tmp_total) * 100, 2, '.', ''); // Perce
 
 //Print the results of the health check
 echo json_encode([
-    "status"    => "OK",
+    "status"    => $status,
     "mysql"     => $mysql,
     "mailqueue" => $mailqueue,
     "load" => $load5,
     "rootfs" => $root_usage,
     "tmpfs" => $tmp_usage,
+    "website" => $website_status
 ]);
