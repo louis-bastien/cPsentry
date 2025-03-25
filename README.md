@@ -49,6 +49,7 @@ This will include:
 
 ## 📬 Contact
 
+Feel free to open issues, submit suggestions, or contact me directly.
+
 Built and maintained by [@louis-bastien](https://github.com/louis-bastien)
 
-Feel free to open issues, submit suggestions, or contact me directly.
