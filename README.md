@@ -17,7 +17,7 @@ cPsentry is a lightweight monitoring and infrastructure protection tool tailored
 - 🔒 Automated IP blocking via iptables for spam/bot or abuse behavior  
 - 🔧 Built with **Flask**, **PHP**, and **Bash scripting**
 
-### 📦 Tech Stack
+## 📦 Tech Stack
 
 - **Python 3** (Monitoring Server)  
 - **Flask** (API Server)  
