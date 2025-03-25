@@ -3,8 +3,6 @@
 
 cPsentry is a lightweight monitoring and infrastructure protection tool tailored for **cPanel-based Linux servers**. It gathers real-time system information via PHP endpoints and uses a Python-based monitoring server to process metrics and take actions such as alerting, logging, or blocking abusive IPs.
 
----
-
 ## ✨ Key Features
 
 - 📡 Real-time metrics collection via PHP endpoints on each monitored server  
@@ -19,8 +17,6 @@ cPsentry is a lightweight monitoring and infrastructure protection tool tailored
 - 🔒 Automated IP blocking via iptables for spam/bot or abuse behavior  
 - 🔧 Built with **Flask**, **PHP**, and **Bash scripting**
 
----
-
 ## 📦 Tech Stack
 
 - **Python 3** (Monitoring Server)  
@@ -31,8 +27,6 @@ cPsentry is a lightweight monitoring and infrastructure protection tool tailored
 - **Telegram Bot API** (Real-time alerts)  
 - **Bash** (Custom instalation Script)
 
----
-
 ## 🔧 Installation & Usage (WIP)
 
 Installation and configuration will be automated via a **Bash installer script** (coming soon). For now, the system requires:
@@ -42,8 +36,6 @@ Installation and configuration will be automated via a **Bash installer script**
 - Python 3 environment with Flask  
 - Telegram Bot token and chat ID
   
----
-
 ## 🔜 Upcoming
 
 I’m currently working on integrating [**VMSentry**](https://github.com/lulubas/vmsentry) — a monitoring agent for **KVM hypervisors** — directly into cPsentry, allowing unified monitoring of both shared hosting and VPS infrastructures in a single service.
@@ -52,6 +44,8 @@ This will include:
 - KVM VM-level resource tracking  
 - Abuse/spam behavior detection  
 - Firewall rule automation across hypervisors
+
+---
 
 ## 📬 Contact
 
