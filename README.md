@@ -17,7 +17,16 @@ cPsentry is a lightweight monitoring and infrastructure protection tool tailored
 - 🔒 Automated IP blocking via iptables for spam/bot or abuse behavior  
 - 🔧 Built with **Flask**, **PHP**, and **Bash scripting**
 
-### 📦 Tech Stack
+### 🔧 Installation & Usage (WIP)
+
+Installation and configuration will be automated via a **Bash installer script** (coming soon). For now, the system requires:
+
+- Root access on the monitoring server  
+- PHP access on the target cPanel machines  
+- Python 3 environment with Flask  
+- Telegram Bot token and chat ID
+
+## 📦 Tech Stack
 
 - **Python 3** (Monitoring Server)  
 - **Flask** (API Server)  
@@ -26,15 +35,6 @@ cPsentry is a lightweight monitoring and infrastructure protection tool tailored
 - **iptables** (Abuse prevention)  
 - **Telegram Bot API** (Real-time alerts)  
 - **Bash** (Custom instalation Script)
-
-## 🔧 Installation & Usage (WIP)
-
-Installation and configuration will be automated via a **Bash installer script** (coming soon). For now, the system requires:
-
-- Root access on the monitoring server  
-- PHP access on the target cPanel machines  
-- Python 3 environment with Flask  
-- Telegram Bot token and chat ID
   
 ## 🔜 Upcoming
 
