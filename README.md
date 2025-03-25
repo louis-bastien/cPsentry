@@ -51,4 +51,4 @@ This will include:
 
 Built and maintained by [@louis-bastien](https://github.com/louis-bastien)
 
-Feel free to open an issue or reach out via [LinkedIn](https://www.linkedin.com/in/louisbastien) if you'd like to collaborate or discuss improvements.
+Feel free to open issues, submit suggestions, or contact me directly.
