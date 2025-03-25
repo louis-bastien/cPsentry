@@ -3,7 +3,7 @@
 
 cPsentry is a lightweight monitoring and infrastructure protection tool tailored for **cPanel-based Linux servers**. It gathers real-time system information via PHP endpoints and uses a Python-based monitoring server to process metrics and take actions such as alerting, logging, or blocking abusive IPs.
 
-### ✨ Key Features
+#### ✨ Key Features
 
 - 📡 Real-time metrics collection via PHP endpoints on each monitored server  
 - 🐍 Python-based monitoring server running as a `systemd` service  
@@ -17,7 +17,7 @@ cPsentry is a lightweight monitoring and infrastructure protection tool tailored
 - 🔒 Automated IP blocking via iptables for spam/bot or abuse behavior  
 - 🔧 Built with **Flask**, **PHP**, and **Bash scripting**
 
-## 📦 Tech Stack
+### 📦 Tech Stack
 
 - **Python 3** (Monitoring Server)  
 - **Flask** (API Server)  
